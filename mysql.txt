@@ -1,0 +1,22 @@
+mysql> create table postac (id_postaci int AUTO_INCREMENT, nazwa varchar(40), rodzaj enum('wiking', 'ptak' ,'kobieta'), data_ur DATE, wiek int unsigned, PRIMARY KEY(id_postaci));
+ 
+mysql> INSERT INTO postac VALUES (1, 'Bjorn', 'wiking', '1944-04-24', '80');
+Query OK, 1 row affected (0.01 sec)
+ 
+mysql> INSERT INTO postac VALUES (2, 'Drozd', 'ptak', '1984-06-28', '40');
+Query OK, 1 row affected (0.01 sec)
+ 
+mysql> INSERT INTO postac VALUES (3, 'Tesciowa', 'kobieta', '1900-01-28', '124');
+Query OK, 1 row affected (0.00 sec)
+ 
+mysql> Update postac set wiek = '88' where nazwa = 'tesciowa';
+ 
+create table walizka (id_walizki int AUTO_INCREMENT, kolor  enum('rozowy', 'czerwony' ,'teczowy', 'zolty') default'rozowy', pojemnosc int unsigned, foreign key (id_walizki) References postac(id_postaci),  PRIMARY KEY(id_walizki));
+Query OK, 0 rows affected (0.08 sec)
+ 
+INSERT INTO walizka VALUES (1, 'rozowy', '10', '1');
+INSERT INTO walizka VALUES (2, 'teczowy', '26', '3');
+ 
+create table izba(adres_budynku int, nazwa_izby varchar(100), metraz int unsigned, wlasciciel int, primary key(adres_budynku, nazwa_izby), constraint fk_wlasciciel_izba foreign key(wlasciciel) references postac(id_postaci) on delete set null);
+alter table izba add kolor_izby varchar(50) default 'czarny' after metraz;
+insert into (adres_budynku, nazwa_izby, metraz, wlasciciel) values ('12', 'spizarnia', 15, 1 );
