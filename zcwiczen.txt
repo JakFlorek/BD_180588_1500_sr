@@ -1,0 +1,122 @@
+mysql> create table postac (id_postaci int AUTO_INCREMENT, nazwa varchar(40), rodzaj enum('wiking', 'ptak' ,'kobieta'), data_ur DATE, wiek int unsigned, PRIMARY KEY(id_postaci));
+ 
+mysql> INSERT INTO postac VALUES (1, 'Bjorn', 'wiking', '1944-04-24', '80');
+Query OK, 1 row affected (0.01 sec)
+ 
+mysql> INSERT INTO postac VALUES (2, 'Drozd', 'ptak', '1984-06-28', '40');
+Query OK, 1 row affected (0.01 sec)
+ 
+mysql> INSERT INTO postac VALUES (3, 'Tesciowa', 'kobieta', '1900-01-28', '124');
+Query OK, 1 row affected (0.00 sec)
+ 
+mysql> Update postac set wiek = '88' where nazwa = 'tesciowa';
+ 
+create table walizka (id_walizki int AUTO_INCREMENT, kolor  enum('rozowy', 'czerwony' ,'teczowy', 'zolty') default'rozowy', pojemnosc int unsigned, foreign key (id_walizki) References postac(id_postaci),  PRIMARY KEY(id_walizki));
+Query OK, 0 rows affected (0.08 sec)
+ 
+INSERT INTO walizka VALUES (1, 'rozowy', '10', '1');
+INSERT INTO walizka VALUES (2, 'teczowy', '26', '3');
+ 
+create table izba(adres_budynku int, nazwa_izby varchar(100), metraz int unsigned, wlasciciel int, primary key(adres_budynku, nazwa_izby), constraint fk_wlasciciel_izba foreign key(wlasciciel) references postac(id_postaci) on delete set null);
+alter table izba add kolor_izby varchar(50) default 'czarny' after metraz;
+insert into (adres_budynku, nazwa_izby, metraz, wlasciciel) values ('12', 'spizarnia', 15, 1 );
+
+CREATE TABLE przetwory (
+    id_przetworu INT AUTO_INCREMENT NOT NULL,
+    rok_produkcji YEAR DEFAULT '1999',
+    dodatek VARCHAR(50),
+    id_konsumenta INT,
+    id_wykonawcy INT,
+    PRIMARY KEY (id_przetworu),
+    FOREIGN KEY (id_wykonawcy) REFERENCES postac(id_postaci),
+    FOREIGN KEY (id_konsumenta) REFERENCES postac(id_postaci)
+);
+INSERT INTO przetwory (id_przetworu, dodatek, id_konsumenta, id_wykonawcy) VALUES (1, 'chili', 1, 1);
+
+INSERT INTO postac (id_postaci, nazwa, rodzaj, data_ur, wiek) VALUES 
+    (4, 'Loki', 'wiking', '1923-01-21', 90),
+    (5, 'Ragnar', 'wiking', '1943-02-12', 93),
+    (6, 'Magnus', 'wiking', '1923-01-12', 23),
+    (7, 'Dawid', 'wiking', '1913-03-05', 80),
+    (8, 'Karol', 'wiking', '1913-03-01', 80),
+    (9, 'Markus', 'wiking', '1999-03-05', 21);
+CREATE TABLE statek (
+    nazwa_statku varchar(30),
+    rodzaj_statku ENUM('wioslowe','zaglowe','naped_mechaniczny'),
+    data_wyladowania date,
+    max_ladownosc int unsigned
+);
+
+INSERT INTO statek VALUES ('statek', 'wioslowe', '1970-09-22','100'), ('statek_drugi', 'zaglowe', '1975-09-22','200');
+
+ALTER TABLE statek add COLUMN funkcja varchar(40);
+ALTER TABLE postac add column funkcja varchar(18);
+UPDATE postac set funkcja = 'kapitan' WHERE nazwa = 'Bjorn';
+
+ALTER TABLE statek ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY NOT NULL;
+ALTER TABLE postac ADD COLUMN statek INT;
+ALTER TABLE postac ADD CONSTRAINT fk_statek FOREIGN KEY (statek) REFERENCES statek(id);
+UPDATE postac SET statek = 1 WHERE wiek < 70;
+UPDATE postac SET statek = 2 WHERE wiek > 70;
+DELETE FROM izba WHERE nazwa_izby = 'spiżarnia';
+DROP TABLE izba;
+
+ALTER TABLE postac ADD PRIMARY KEY (nazwa);
+mysql> alter table postac  drop id_postaci
+    -> ;
+Query OK, 7 rows affected (0.07 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> desc postac
+    -> ;
++---------+---------------------------------+------+-----+---------+-------+
+| Field   | Type                            | Null | Key | Default | Extra |
++---------+---------------------------------+------+-----+---------+-------+
+| nazwa   | varchar(40)                     | YES  |     | NULL    |       |
+| rodzaj  | enum('wiking','ptak','kobieta') | YES  |     | NULL    |       |
+| data_ur | date                            | YES  |     | NULL    |       |
+| wiek    | int unsigned                    | YES  |     | NULL    |       |
+| funkcja | varchar(18)                     | YES  |     | NULL    |       |
+| statek  | int                             | YES  | MUL | NULL    |       |
++---------+---------------------------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> ALTER TABLE postac ADD PRIMARY KEY (nazwa);
+Query OK, 0 rows affected (0.04 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ^C
+mysql> ^C
+mysql> ALTER TABLE postac ADD COLUMN pesel CHAR(11);
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE postac DROP PRIMARY KEY;
+Query OK, 7 rows affected (0.05 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE postac ADD PRIMARY KEY (pesel);
+ERROR 1138 (22004): Invalid use of NULL value
+mysql> ALTER TABLE postac MODIFY COLUMN rodzaj ENUM('wiking', 'ptak', 'kobieta', 'syrena');
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO postac (pesel, nazwa, rodzaj, data_ur, wiek)
+    -> VALUES ('12345678901', 'Gertruda Nieszczera', 'syrena', '2000-01-01', 24);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> ^C
+mysql> UPDATE postac SET pesel = LPAD(id_postaci, 11, '0');
+ERROR 1054 (42S22): Unknown column 'id_postaci' in 'field list'
+mysql>
+ delete from postac where rodzaj = "wiking" order by wiek asc limit 2;
+ insert into postac (nazwa,data_ur,wiek,pesel) values ('Loko','2000-1-1','
+24','12345678910');
+alter table add primary key (pesel);
+ create table marynarz as select * from postac where statek is not null;
+alter table marynarz add foreign key (statek_2) references statek(nazwa_statku);
+create table zwierz(id int auto_increment, nazwa varchar(30), wiek int, primary key(id));
+INSERT INTO zwierz (nazwa, wiek) 
+SELECT (nazwa, wiek) 
+FROM posta
+
