@@ -1,0 +1,69 @@
+select AVG(waga) from postac where rodzaj="wiking";
+select AVG(waga), count(rodzaj), rodzaj as nazwa from postac group by rodzaj;
+select AVG(wiek), rodzaj from postac group by rodzaj;
+select sum(waga), rodzaj from zasob group by rodzaj;
+select avg(waga), nazwa from zasob group by nazwa having count(*) >= 4 and sum(waga)> 10;
+select rodzaj, count(*) as ilosc from zasob group by rodzaj having count(*) > 1;
+SELECT kreatura.nazwa, COUNT(ekwipunek.ilosc) AS liczba_ekwipunku FROM ekwipunek  JOIN kreatura  ON ekwipunek.idKreatury = kreatura.idKreatury GROUP BY kreatura.nazwa;
+
+SELECT 
+    kreatura.nazwa
+FROM 
+    kreatura
+LEFT JOIN 
+    ekwipunek 
+ON 
+    kreatura.idKreatury = ekwipunek.idKreatury
+WHERE 
+    ekwipunek.idEkwipunku IS NULL;
+
+select nazwa from postac where rodzaj = "wiking" year(data_ur) between 1970 and 1979;
+
+select * from kreatura   join ekwipunek on ekwipunek.idKreatury = kreatura.idKreatury join zasob on ekwipunek.idZasobu = zasob.idZasobu  order by dataUr desc limit 5;
+
+select kreatura.nazwa, zasob.rodzaj from kreatura join ekwipunek on ekwipunek.idKreatury = kreatura.idKreatury join zasob on ekwipunek.idZasobu = zasob.idZasobu where zasob.rodzaj= "jedzenie"  order by dataUr desc limit 5;
+
+SELECT
+         k1.nazwa AS Kreatura1,
+         k2.nazwa AS Kreatura2
+     FROM
+         kreatura k1
+     JOIN
+         kreatura k2
+     ON
+        ABS(k1.idKreatury - k2.idKreatury) = 5;
+
+select avg(zasob.waga) as srednia_waga from kreatura  join ekwipunek on ekwipunek.idKreatury = kreatura.idKreatury join zasob on ekwipunek.idZasobu = zasob.idZasobu where kreatura.rodzaj != "malpa" OR kreatura.rodzaj != "waz";
+A
+SELECT 
+    k.rodzaj AS RodzajKreatury,
+    AVG(z.waga) AS SredniaWagaZasobow
+FROM 
+    kreatura k
+JOIN 
+    ekwipunek e ON k.idKreatury = e.idKreatury
+JOIN 
+    zasob z ON e.idZasobu = z.idZasobu
+WHERE 
+    k.rodzaj NOT IN ('malpa', 'waz') -- Wykluczenie kreatur typu małpa i wąż
+    AND e.ilosc < 30                -- Warunek ilości ekwipunku
+GROUP BY 
+    k.rodzaj;                       -- Grupowanie według rodzaju kreatur
+
+
+
+
+SELECT
+    rodzaj,
+    MIN(dataUr) AS DataNajstarszej,
+    MAX(dataUr) AS DataNajmlodszej,
+    (SELECT nazwa 
+     FROM kreatura AS k1 
+     WHERE k1.dataUr = MIN(kreatura.dataUr) AND k1.rodzaj = kreatura.rodzaj) AS NajstarszaKreatura,
+    (SELECT nazwa 
+     FROM kreatura AS k2 
+     WHERE k2.dataUr = MAX(kreatura.dataUr) AND k2.rodzaj = kreatura.rodzaj) AS NajmlodszaKreatura
+FROM 
+    kreatura
+GROUP BY 
+    rodzaj;
