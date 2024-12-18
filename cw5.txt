@@ -1,0 +1,113 @@
+create table florekj.uczstnicy as select * from wikingowie.uczestnicy;
+create table florekj.etapy_wyprawy as select * from wikingowie.etapy_wyprawy;
+
+select * from kreatura1 join uczestnicy on uczestnicy.id_uczestnika = kreatura1.idKreatury;
+
+select kreatura1.idKreatury, nazwa, id_wyprawy from kreatura1 left join uczestnicy on uczestnicy.id_uczestnika = kreatura1.idKreatury where id_wyprawy is null;
+SELECT 
+    w.nazwa AS wyprawa_nazwa,
+    SUM(e.ilosc) AS suma_ekwipunku
+FROM 
+    wyprawa w
+JOIN 
+    uczestnicy u ON w.id_wyprawy = u.id_wyprawy
+JOIN 
+    ekwipunek e ON u.id_uczestnika = e.idKreatury
+GROUP BY 
+    w.id_wyprawy, w.nazwa;
+
+SELECT
+          w.nazwa AS wyprawa_nazwa,
+          COUNT(u.id_uczestnika) AS liczba_uczestnikow,
+          GROUP_CONCAT(k.nazwa SEPARATOR ', ') AS uczestnicy
+      FROM
+          wyprawa w
+      JOIN
+          uczestnicy u ON w.id_wyprawy = u.id_wyprawy
+      JOIN
+          kreatura k ON u.id_uczestnika = k.idKreatury
+      GROUP BY
+          w.id_wyprawy, w.nazwa;
+
+
+SELECT
+          w.nazwa AS nazwa_wyprawy,
+          w.data_rozpoczecia,
+          w.data_zakonczenia,
+          k.nazwa AS kierownik,
+          s.nazwa AS nazwa_sektora,
+          ew.kolejnosc
+      FROM
+          wyprawa w
+      LEFT JOIN
+          etapy_wyprawy ew ON w.id_wyprawy = ew.idWyprawy
+      LEFT JOIN
+          sektor s ON ew.sektor = s.id_sektora
+      LEFT JOIN
+          kreatura k ON w.kierownik = k.idKreatury
+      ORDER BY
+          w.data_rozpoczecia ASC,
+          ew.kolejnosc ASC;
+
+
+
+
+Select sektor.nazwa, count(sektor) as ilosc from sektor left join etapy_wyprawy on etapy_wyprawy.sektor = sektor.id_sektora group by sektor.nazwa;
+
+
+select kreatura1.idKreatury,kreatura1.nazwa,CASE
+        WHEN id_wyprawy IS NULL THEN 'Nie byl na wyprawie'
+        ELSE 'Byl na wyprawie' END AS wynik from kreatura1 left join wyprawa on wyprawa.kierownik = kreatura1.idKreatury;
+
+
+
+SELECT 
+    wyprawa.nazwa, 
+    SUM(CHAR_LENGTH(etapy_wyprawy.dziennik)) AS suma_dlugosci_dziennika
+FROM 
+    wyprawa
+LEFT JOIN 
+    etapy_wyprawy 
+ON 
+    etapy_wyprawy.idWyprawy = wyprawa.id_wyprawy
+GROUP BY 
+    wyprawa.nazwa
+HAVING
+ SUM(CHAR_LENGTH(etapy_wyprawy.dziennik)) < 400;
+
+
+SELECT 
+    wyprawa.nazwa AS nazwa_wyprawy,
+    AVG(zasob.waga) AS srednia_waga_zasobow
+FROM 
+    wyprawa
+JOIN 
+    uczestnicy ON uczestnicy.id_wyprawy = wyprawa.id_wyprawy
+JOIN 
+    kreatura1 ON uczestnicy.id_uczestnika = kreatura1.idKreatury
+JOIN 
+    ekwipunek ON ekwipunek.idkreatury = kreatura1.idKreatury
+JOIN 
+    zasob ON zasob.idZasobu = ekwipunek.idZasobu
+GROUP BY 
+    wyprawa.nazwa;
+
+
+
+SELECT 
+    wyprawa.nazwa,
+    kreatura1.nazwa AS nazwa_kreatury,
+    DATEDIFF(wyprawa.data_rozpoczecia, kreatura1.DataUr) AS wiek_w_dniach
+FROM 
+    wyprawa
+JOIN 
+    uczestnicy ON uczestnicy.id_wyprawy = wyprawa.id_wyprawy
+JOIN 
+    kreatura1 ON uczestnicy.id_uczestnika = kreatura1.idKreatury
+JOIN 
+    etapy_wyprawy ON etapy_wyprawy.idWyprawy = wyprawa.id_wyprawy
+JOIN
+	sektor ON etapy_wyprawy.sektor = sektor.id_sektora
+WHERE 
+    sektor.nazwa = 'chatka dziadka'
+
